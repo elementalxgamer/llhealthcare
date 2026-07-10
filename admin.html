@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Panel - Lifeline Healthcare</title>
+    <link rel="stylesheet" href="admin.css">
+</head>
+<body>
+
+<div class="login-box" id="loginBox">
+    <h2>🔒 Admin Login</h2>
+
+    <input
+        type="password"
+        id="password"
+        placeholder="Enter Password">
+
+    <button onclick="login()">
+        Login
+    </button>
+</div>
+
+<div class="admin-panel" id="adminPanel" style="display:none;">
+
+    <h1>💊 Lifeline Healthcare Admin</h1>
+
+    <input
+        type="text"
+        id="medicineName"
+        placeholder="Medicine Name">
+
+    <input
+        type="number"
+        id="medicinePrice"
+        placeholder="Price">
+
+    <button onclick="addMedicine()">
+        ➕ Add Medicine
+    </button>
+
+    <h2>Medicine List</h2>
+
+    <div id="medicineList"></div>
+
+</div>
+
+<script src="admin.js"></script>
+
+</body>
+</html>
