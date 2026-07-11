@@ -1,249 +1,457 @@
+// ==============================
+// Lifeline Healthcare
+// script.js (Part 1)
+// ==============================
+
+// Landing Page
+
+const orderBtn = document.getElementById("orderBtn");
+const landingPage = document.getElementById("landingPage");
+const medicinePage = document.getElementById("medicinePage");
+
+orderBtn.addEventListener("click", () => {
+
+landingPage.classList.add("hidden");
+medicinePage.classList.remove("hidden");
+
+window.scrollTo({
+top:0,
+behavior:"smooth"
+});
+
+});
+
+// ==============================
+// Medicine Database
+// ==============================
+
 const medicines = [
- {name:"Cremaffin Mint",price:318.59},
- {name:"Eptoin 300 ER",price:210.40},
- {name:"Eptoin 100",price:225.52},
- {name:"Satrogyl Tab",price:165.00},
- {name:"Valparin Syrup",price:138.60},
- {name:"Nootropil 800mg Tab",price:1084.21},
- {name:"Calpol Syp 250mg",price:42.84},
- {name:"Ziten-M 20/1000mg",price:323.90},
- {name:"Veltam 0.4",price:232.00},
- {name:"Etilaam MD 0.5",price:88.13},
- {name:"Ultracet Tab",price:325.10},
- {name:"Omnacortil-20",price:25.61},
- {name:"Concor 5",price:145.39},
- {name:"Concor Cor 2.5",price:97.40},
- {name:"S-Celepra 10",price:96.10},
- {name:"Neopeptine Drop",price:111.50},
- {name:"Enterogermina Liquid",price:82.07},
- {name:"Etoshine-MR",price:338.00},
- {name:"Gemer Sita IR 50/500/1mg",price:132.19},
- {name:"Eliwel-10mg",price:25.42},
- {name:"Eliwel-25mg",price:26.48},
- {name:"Lonazep-0.5mg",price:55.28},
- {name:"Shelcal 200ml Syrup",price:170.39},
- {name:"Derobin Ointment",price:130.78},
- {name:"Udapa S 10/100 Tab",price:194.90}
+
+{
+name:"Paracetamol 650",
+price:30,
+category:"Tablets",
+stock:true
+},
+
+{
+name:"Dolo 650",
+price:35,
+category:"Tablets",
+stock:true
+},
+
+{
+name:"Calpol Syrup",
+price:65,
+category:"Syrups",
+stock:true
+},
+
+{
+name:"Cetirizine",
+price:25,
+category:"Tablets",
+stock:true
+},
+
+{
+name:"ORS Powder",
+price:20,
+category:"Health",
+stock:true
+},
+
+{
+name:"Digene Gel",
+price:120,
+category:"Syrups",
+stock:true
+},
+
+{
+name:"Crocin Advance",
+price:32,
+category:"Tablets",
+stock:true
+},
+
+{
+name:"Vitamin C Tablets",
+price:180,
+category:"Tablets",
+stock:true
+},
+
+{
+name:"Bandage Roll",
+price:55,
+category:"First Aid",
+stock:true
+},
+
+{
+name:"Betadine Ointment",
+price:95,
+category:"Ointments",
+stock:true
+},
+
+{
+name:"Zincovit",
+price:150,
+category:"Tablets",
+stock:true
+},
+
+{
+name:"Benadryl Syrup",
+price:145,
+category:"Syrups",
+stock:true
+}
+
 ];
 
-let quantities = {};
+// ==============================
+// Cart
+// ==============================
+
+let cart = [];
 
 const medicineContainer =
 document.getElementById("medicineContainer");
 
+const cartItems =
+document.getElementById("cartItems");
+
+const medicineTotal =
+document.getElementById("medicineTotal");
+
+const grandTotal =
+document.getElementById("grandTotal");
+
+// ==============================
+// Show Medicines
+// ==============================
+
 function displayMedicines(list){
 
-    medicineContainer.innerHTML = "";
+medicineContainer.innerHTML="";
 
-    list.forEach(med=>{
+list.forEach((medicine,index)=>{
 
-        const qty = quantities[med.name] || 0;
+medicineContainer.innerHTML += `
 
-        medicineContainer.innerHTML += `
-        <div class="medicine-card">
+<div class="medicineCard">
 
-            <h3>${med.name}</h3>
-            <p>₹${med.price}</p>
+<h3>${medicine.name}</h3>
 
-            ${
-                qty === 0
-                ?
-                `<button onclick="addToCart('${med.name}')">
-                    Add To Cart
-                </button>`
-                :
-                `<div class="qty-controls">
-                    <button onclick="decreaseQty('${med.name}')">−</button>
-                    <span>${qty}</span>
-                    <button onclick="increaseQty('${med.name}')">+</button>
-                </div>`
-            }
+<p>${medicine.category}</p>
 
-        </div>
-        `;
-    });
-}
+<p class="price">
+₹${medicine.price}
+</p>
 
-function addToCart(name){
+<span class="stock">
 
-    quantities[name] = 1;
+${medicine.stock ? "🟢 In Stock" : "🔴 Out of Stock"}
 
-    updateCart();
+</span>
 
-    displayMedicines(getFilteredMedicines());
-}
+<button
+class="addBtn"
+onclick="addToCart(${index})">
 
-function increaseQty(name){
+Add To Cart
 
-    quantities[name]++;
+</button>
 
-    updateCart();
+</div>
 
-    displayMedicines(getFilteredMedicines());
-}
-
-function decreaseQty(name){
-
-    quantities[name]--;
-
-    if(quantities[name] <= 0){
-        delete quantities[name];
-    }
-
-    updateCart();
-
-    displayMedicines(getFilteredMedicines());
-}
-
-function updateCart(){
-
-    const cartItems =
-    document.getElementById("cartItems");
-
-    const billDetails =
-    document.getElementById("billDetails");
-
-    let subtotal = 0;
-
-    cartItems.innerHTML = "";
-    billDetails.innerHTML = "";
-
-    for(const medName in quantities){
-
-        const qty = quantities[medName];
-
-        const med =
-        medicines.find(
-            m => m.name === medName
-        );
-
-        const itemTotal =
-        med.price * qty;
-
-        subtotal += itemTotal;
-
-        cartItems.innerHTML += `
-        <li>
-            ${medName} × ${qty}
-            = ₹${itemTotal.toFixed(2)}
-        </li>
-        `;
-
-        billDetails.innerHTML += `
-        <p>
-            ${medName} × ${qty}
-            = ₹${itemTotal.toFixed(2)}
-        </p>
-        `;
-    }
-
-    const gst = subtotal * 0.05;
-    const grandTotal = subtotal + gst;
-
-    document.getElementById("total").innerText =
-    subtotal.toFixed(2);
-
-    document.getElementById("subtotal").innerText =
-    subtotal.toFixed(2);
-
-    document.getElementById("gst").innerText =
-    gst.toFixed(2);
-
-    document.getElementById("grandTotal").innerText =
-    grandTotal.toFixed(2);
-}
-
-function getFilteredMedicines(){
-
-    const search =
-    document.getElementById("searchBar")
-    .value
-    .toLowerCase();
-
-    return medicines.filter(med =>
-        med.name
-        .toLowerCase()
-        .includes(search)
-    );
-}
-
-document
-.getElementById("searchBar")
-.addEventListener("input",()=>{
-
-    displayMedicines(
-        getFilteredMedicines()
-    );
+`;
 
 });
 
-function placeOrder(){
-
-    const name =
-    document.getElementById("name")
-    .value.trim();
-
-    const phone =
-    document.getElementById("phone")
-    .value.trim();
-
-    const address =
-    document.getElementById("address")
-    .value.trim();
-
-    const payment =
-    document.getElementById("payment")
-    .value;
-
-    if(
-        name === "" ||
-        phone === "" ||
-        address === ""
-    ){
-        alert("Please fill all details!");
-        return;
-    }
-
-    if(
-        Object.keys(quantities).length === 0
-    ){
-        alert("Your cart is empty!");
-        return;
-    }
-
-    let medicineList = "";
-
-    for(const medName in quantities){
-
-        medicineList +=
-        `• ${medName} x${quantities[medName]}\n`;
-    }
-
-    const grandTotal =
-    document.getElementById("grandTotal")
-    .innerText;
-
-    const message =
-`💊 Lifeline Healthcare Order
-
-👤 Name: ${name}
-📞 Phone: ${phone}
-🏠 Address: ${address}
-
-💳 Payment: ${payment}
-
-🛒 Medicines:
-${medicineList}
-
-💰 Grand Total: ₹${grandTotal}`;
-
-    const whatsappNumber =
-    "918797124365";
-
-    const whatsappURL =
-`https://wa.me/${whatsappNumber}?text=${encodeURIComponent(message)}`;
-
-    window.open(whatsappURL,"_blank");
 }
 
 displayMedicines(medicines);
+
+// ==============================
+// Search
+// ==============================
+
+const searchBox =
+document.getElementById("searchBox");
+
+searchBox.addEventListener("input",()=>{
+
+const value =
+searchBox.value.toLowerCase();
+
+const filtered =
+medicines.filter(medicine=>
+
+medicine.name.toLowerCase().includes(value)
+
+);
+
+displayMedicines(filtered);
+
+});
+// ==============================
+// Add To Cart
+// ==============================
+
+function addToCart(index){
+
+const medicine = medicines[index];
+
+const existing = cart.find(item => item.name === medicine.name);
+
+if(existing){
+
+existing.quantity++;
+
+}else{
+
+cart.push({
+...medicine,
+quantity:1
+});
+
+}
+
+updateCart();
+
+}
+
+// ==============================
+// Increase Quantity
+// ==============================
+
+function increase(index){
+
+cart[index].quantity++;
+
+updateCart();
+
+}
+
+// ==============================
+// Decrease Quantity
+// ==============================
+
+function decrease(index){
+
+if(cart[index].quantity > 1){
+
+cart[index].quantity--;
+
+}else{
+
+cart.splice(index,1);
+
+}
+
+updateCart();
+
+}
+
+// ==============================
+// Update Cart
+// ==============================
+
+function updateCart(){
+
+cartItems.innerHTML="";
+
+let total=0;
+
+if(cart.length===0){
+
+cartItems.innerHTML="Your cart is empty.";
+
+medicineTotal.innerHTML="₹0";
+
+grandTotal.innerHTML="₹0";
+
+return;
+
+}
+
+cart.forEach((item,index)=>{
+
+const subTotal=item.price*item.quantity;
+
+total+=subTotal;
+
+cartItems.innerHTML+=`
+
+<div class="medicineCard">
+
+<h3>${item.name}</h3>
+
+<p>
+
+₹${item.price} × ${item.quantity}
+
+</p>
+
+<h4>
+
+Subtotal : ₹${subTotal}
+
+</h4>
+
+<div style="display:flex;gap:10px;margin-top:10px;">
+
+<button
+class="addBtn"
+onclick="decrease(${index})">
+
+−
+
+</button>
+
+<button
+class="addBtn"
+onclick="increase(${index})">
+
++
+
+</button>
+
+</div>
+
+</div>
+
+`;
+
+});
+
+medicineTotal.innerHTML=`₹${total}`;
+
+grandTotal.innerHTML=`₹${total}`;
+
+}
+// ==============================
+// WhatsApp Order
+// ==============================
+
+const placeOrder =
+document.getElementById("placeOrder");
+
+placeOrder.addEventListener("click",()=>{
+
+const name =
+document.getElementById("customerName").value.trim();
+
+const phone =
+document.getElementById("customerPhone").value.trim();
+
+const address =
+document.getElementById("customerAddress").value.trim();
+
+const coupon =
+document.getElementById("couponCode").value.trim();
+
+if(name==="" || phone==="" || address===""){
+
+alert("Please fill all customer details.");
+
+return;
+
+}
+
+if(cart.length===0){
+
+alert("Your cart is empty.");
+
+return;
+
+}
+
+let total=0;
+
+let medicineList="";
+
+cart.forEach(item=>{
+
+medicineList+=
+`• ${item.name} × ${item.quantity} = ₹${item.price*item.quantity}\n`;
+
+total+=item.price*item.quantity;
+
+});
+
+let message=
+
+`🏥 *LIFELINE HEALTHCARE ORDER*%0A%0A`+
+
+`👤 *Customer Name:* ${name}%0A`+
+
+`📞 *Phone:* ${phone}%0A`+
+
+`📍 *Address:* ${address}%0A%0A`+
+
+`💊 *Medicines:*%0A${medicineList}%0A`+
+
+`💰 *Medicine Total:* ₹${total}%0A%0A`+
+
+`🎟 *Coupon Code:* ${coupon || "None"}%0A`+
+
+`(Coupons will be verified by our staff.)%0A%0A`+
+
+`🧾 *Grand Total:* ₹${total}%0A%0A`+
+
+`Thank You ❤️`;
+
+const whatsappURL=
+
+`https://wa.me/918797124365?text=${message}`;
+
+window.open(whatsappURL,"_blank");
+
+});
+
+// ==============================
+// Simple Category Filter
+// ==============================
+
+const categoryButtons =
+document.querySelectorAll(".category");
+
+categoryButtons.forEach(button=>{
+
+button.addEventListener("click",()=>{
+
+const category =
+button.innerText
+.replace("💊","")
+.replace("🧃","")
+.replace("💉","")
+.replace("🧴","")
+.replace("👶","")
+.replace("❤️","")
+.trim();
+
+const filtered = medicines.filter(medicine=>
+
+medicine.category
+.toLowerCase()
+.includes(category.toLowerCase())
+
+);
+
+displayMedicines(filtered);
+
+});
+
+});
+
+// ==============================
+// End of Script
+// ==============================
+
+console.log("Lifeline Healthcare Loaded Successfully ❤️");
